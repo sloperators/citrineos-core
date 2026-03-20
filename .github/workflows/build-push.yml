@@ -1,0 +1,26 @@
+# .github/workflows/build-push.yml
+#
+# Builds and pushes the citrineos-core Docker image to Artifact Registry,
+# then triggers a deploy in architecture-ocpp.
+#
+# Triggers on push to `stage` or `main`.
+
+name: Build & deploy
+
+on:
+  push:
+    branches:
+      - stage
+      - main
+
+jobs:
+  build:
+    uses: sloperators/architecture-ocpp/.github/workflows/build-image.yml@main
+    with:
+      service:    citrineos-core
+      dockerfile: Server/deploy.Dockerfile
+      context:    .
+    secrets:
+      WIF_PROVIDER:   ${{ secrets.WIF_PROVIDER }}
+      GH_ACTIONS_SA:  ${{ secrets.GH_ACTIONS_SA }}
+      DISPATCH_TOKEN: ${{ secrets.DISPATCH_TOKEN }}
