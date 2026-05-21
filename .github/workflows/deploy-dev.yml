@@ -42,7 +42,7 @@ jobs:
             type=ref,event=branch
             type=sha,prefix=,suffix=,format=short
 
-      - name: Build and push image
+      - name: Build and push citrineos-core image
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -54,6 +54,27 @@ jobs:
           cache-to: type=gha,mode=max
           platforms: linux/amd64
 
+      - name: Extract metadata (hasura)
+        id: meta_hasura
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/sloperators/hasura
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix=,suffix=,format=short
+
+      - name: Build and push hasura image (with metadata)
+        uses: docker/build-push-action@v6
+        with:
+          context: ./Server
+          file: ./Server/Dockerfile.hasura
+          push: true
+          tags: ${{ steps.meta_hasura.outputs.tags }}
+          labels: ${{ steps.meta_hasura.outputs.labels }}
+          cache-from: type=gha,scope=hasura
+          cache-to: type=gha,mode=max,scope=hasura
+          platforms: linux/amd64
+
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1
         with:
@@ -63,6 +84,6 @@ jobs:
           script: |
             set -euo pipefail
             cd /opt/sloperators
-            docker compose pull citrineos-core
-            docker compose up -d citrineos-core
+            docker compose pull citrineos-core hasura
+            docker compose up -d citrineos-core hasura
             docker image prune -f
