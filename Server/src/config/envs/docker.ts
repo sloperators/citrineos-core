@@ -203,6 +203,17 @@ export function createDockerConfig() {
             dynamicTenantResolution: true,
           },
           {
+            id: '10',
+            securityProfile: 0,
+            allowUnknownChargingStations: true,
+            pingInterval: 60,
+            host: '0.0.0.0',
+            port: 8071,
+            protocol: 'ocpp1.6',
+            tenantId: DEFAULT_TENANT_ID,
+            dynamicTenantResolution: true,
+          },
+          {
             id: '1',
             securityProfile: 1,
             allowUnknownChargingStations: false,
