@@ -27,19 +27,175 @@ select_permissions:
   - role: user
     permission:
       columns:
-        - address
-        - city
-        - country
-        - name
-        - postalCode
-        - state
         - id
         - tenantId
+        - name
+        - address
+        - city
+        - state
+        - postalCode
+        - country
+        - publishUpstream
+        - timeZone
+        - parkingType
+        - facilities
+        - openingHours
+        - coordinates
         - createdAt
         - updatedAt
-        - coordinates
       filter:
         tenantId:
           _eq: x-hasura-tenant-id
       allow_aggregations: true
     comment: ""
+  # admin / operator / viewer inherit this select permission via
+  # inherited_roles.yaml — no need to repeat it here.
+insert_permissions:
+  - role: admin
+    permission:
+      check:
+        tenantId:
+          _eq: x-hasura-tenant-id
+      set:
+        tenantId: x-hasura-tenant-id
+      # createdAt/updatedAt are NOT NULL with no DB default (Sequelize manages
+      # them at app level). Inserting directly through Hasura must provide them,
+      # so the frontend sets them in the service layer.
+      columns:
+        - name
+        - address
+        - city
+        - state
+        - postalCode
+        - country
+        - publishUpstream
+        - timeZone
+        - parkingType
+        - facilities
+        - openingHours
+        - coordinates
+        - createdAt
+        - updatedAt
+  - role: owner
+    permission:
+      check:
+        tenantId:
+          _eq: x-hasura-tenant-id
+      set:
+        tenantId: x-hasura-tenant-id
+      columns:
+        - name
+        - address
+        - city
+        - state
+        - postalCode
+        - country
+        - publishUpstream
+        - timeZone
+        - parkingType
+        - facilities
+        - openingHours
+        - coordinates
+        - createdAt
+        - updatedAt
+  # operator may create/edit sites (no delete — that stays owner/admin).
+  - role: operator
+    permission:
+      check:
+        tenantId:
+          _eq: x-hasura-tenant-id
+      set:
+        tenantId: x-hasura-tenant-id
+      columns:
+        - name
+        - address
+        - city
+        - state
+        - postalCode
+        - country
+        - publishUpstream
+        - timeZone
+        - parkingType
+        - facilities
+        - openingHours
+        - coordinates
+        - createdAt
+        - updatedAt
+update_permissions:
+  - role: admin
+    permission:
+      filter:
+        tenantId:
+          _eq: x-hasura-tenant-id
+      check:
+        tenantId:
+          _eq: x-hasura-tenant-id
+      columns:
+        - name
+        - address
+        - city
+        - state
+        - postalCode
+        - country
+        - publishUpstream
+        - timeZone
+        - parkingType
+        - facilities
+        - openingHours
+        - coordinates
+        - updatedAt
+  - role: owner
+    permission:
+      filter:
+        tenantId:
+          _eq: x-hasura-tenant-id
+      check:
+        tenantId:
+          _eq: x-hasura-tenant-id
+      columns:
+        - name
+        - address
+        - city
+        - state
+        - postalCode
+        - country
+        - publishUpstream
+        - timeZone
+        - parkingType
+        - facilities
+        - openingHours
+        - coordinates
+        - updatedAt
+  - role: operator
+    permission:
+      filter:
+        tenantId:
+          _eq: x-hasura-tenant-id
+      check:
+        tenantId:
+          _eq: x-hasura-tenant-id
+      columns:
+        - name
+        - address
+        - city
+        - state
+        - postalCode
+        - country
+        - publishUpstream
+        - timeZone
+        - parkingType
+        - facilities
+        - openingHours
+        - coordinates
+        - updatedAt
+delete_permissions:
+  - role: admin
+    permission:
+      filter:
+        tenantId:
+          _eq: x-hasura-tenant-id
+  - role: owner
+    permission:
+      filter:
+        tenantId:
+          _eq: x-hasura-tenant-id

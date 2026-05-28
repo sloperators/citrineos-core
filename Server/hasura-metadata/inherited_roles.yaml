@@ -1,4 +1,25 @@
 # SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
 #
 # SPDX-License-Identifier: Apache-2.0
-[]
+#
+# The base read permissions across the schema are defined for the `user` role.
+# owner / admin / support / operator / viewer inherit all of those select
+# permissions so they can read every table the user role can, without
+# duplicating column lists in each table's metadata. Write permissions
+# (insert/update/delete) are granted explicitly per-table to the admin and
+# owner roles (see e.g. public_Locations.yaml).
+- role_name: owner
+  role_set:
+    - user
+- role_name: admin
+  role_set:
+    - user
+- role_name: support
+  role_set:
+    - user
+- role_name: operator
+  role_set:
+    - user
+- role_name: viewer
+  role_set:
+    - user

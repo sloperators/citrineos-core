@@ -81,6 +81,7 @@ select_permissions:
         - iccid
         - id
         - imsi
+        - latestOcppMessageTimestamp
         - meterSerialNumber
         - meterType
         - protocol
@@ -93,3 +94,61 @@ select_permissions:
           _eq: x-hasura-tenant-id
       allow_aggregations: true
     comment: ""
+  # admin / operator / viewer inherit this select permission via
+  # inherited_roles.yaml — no need to repeat it here.
+insert_permissions:
+  # Pre-registration (allow-list) flow: an operator registers a station BEFORE
+  # the physical charger connects. tenantId is forced from the session claim via
+  # the `set` preset, so a station can never be inserted into another tenant.
+  # Combined with citrineos `allowUnknownChargingStations: false`, only
+  # pre-registered stations (in the matching tenant) are allowed to connect.
+  - role: admin
+    permission:
+      check:
+        tenantId:
+          _eq: x-hasura-tenant-id
+      set:
+        tenantId: x-hasura-tenant-id
+      # createdAt/updatedAt are NOT NULL with no DB default (Sequelize manages
+      # them at app level). Inserting directly through Hasura must provide them,
+      # so the frontend sets them in the service layer.
+      columns:
+        - id
+        - chargePointVendor
+        - chargePointModel
+        - protocol
+        - locationId
+        - createdAt
+        - updatedAt
+  # owner has the same write capability as admin (see inherited_roles.yaml).
+  - role: owner
+    permission:
+      check:
+        tenantId:
+          _eq: x-hasura-tenant-id
+      set:
+        tenantId: x-hasura-tenant-id
+      columns:
+        - id
+        - chargePointVendor
+        - chargePointModel
+        - protocol
+        - locationId
+        - createdAt
+        - updatedAt
+  # operator may register chargers (insert); delete stays owner/admin.
+  - role: operator
+    permission:
+      check:
+        tenantId:
+          _eq: x-hasura-tenant-id
+      set:
+        tenantId: x-hasura-tenant-id
+      columns:
+        - id
+        - chargePointVendor
+        - chargePointModel
+        - protocol
+        - locationId
+        - createdAt
+        - updatedAt
